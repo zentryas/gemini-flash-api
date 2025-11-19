@@ -58,26 +58,51 @@ app.post('/generate-from-image', upload.single('image'), async (req, res) => {
     }
 });
 
-app.post('generate-from-document', upload.single('document'), async (req, res) => {
+app.post('/generate-from-document', upload.single('document'), async (req, res) => {
     const { prompt } = req.body;
-    const base64Document = req.file.buffer;
-
+    const base64Document = req.file.buffer.toString('base64');
+   
     try {
         const response = await ai.models.generateContent({
             model: GEMINI_MODEL,
             contents: [
-                { text: prompt ?? "Tolong buat ringkasan dari dokumen berikut.", type: 'text' },
-                {   
-                    inlineData: {
+                { text: prompt, type: 'text' },
+                { 
+                    inlineData: { 
                         data: base64Document,
                         mimeType: req.file.mimetype
                     }
                 }
             ],
         });
-
+        
         res.status(200).json({ result: response.text });
-    } catch (e) {
+    } catch (e) {   
+        console.log(e);
+        res.status(500).json({ error: e.message });
+    }
+});
+
+app.post('/generate-from-audio', upload.single('audio'), async (req, res) => {
+    const { prompt } = req.body;
+    const base64Audio = req.file.buffer.toString('base64');
+   
+    try {
+        const response = await ai.models.generateContent({
+            model: GEMINI_MODEL,
+            contents: [
+                { text: prompt, type: 'text' },
+                { 
+                    inlineData: { 
+                        data: base64Audio,
+                        mimeType: req.file.mimetype
+                    }
+                }
+            ],
+        });
+        
+        res.status(200).json({ result: response.text });
+    } catch (e) {   
         console.log(e);
         res.status(500).json({ error: e.message });
     }
