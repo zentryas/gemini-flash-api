@@ -36,7 +36,7 @@ app.post('/generate-text', async (req, res) => {
 app.post('/generate-from-image', upload.single('image'), async (req, res) => {
     const { prompt } = req.body;
     const base64Image = req.file.buffer.toString('base64');
-    console.log(req.file.buffer);
+   
     try {
         const response = await ai.models.generateContent({
             model: GEMINI_MODEL,
@@ -57,4 +57,30 @@ app.post('/generate-from-image', upload.single('image'), async (req, res) => {
         res.status(500).json({ error: e.message });
     }
 });
+
+app.post('generate-from-document', upload.single('document'), async (req, res) => {
+    const { prompt } = req.body;
+    const base64Document = req.file.buffer;
+
+    try {
+        const response = await ai.models.generateContent({
+            model: GEMINI_MODEL,
+            contents: [
+                { text: prompt ?? "Tolong buat ringkasan dari dokumen berikut.", type: 'text' },
+                {   
+                    inlineData: {
+                        data: base64Document,
+                        mimeType: req.file.mimetype
+                    }
+                }
+            ],
+        });
+
+        res.status(200).json({ result: response.text });
+    } catch (e) {
+        console.log(e);
+        res.status(500).json({ error: e.message });
+    }
+});
+
 
