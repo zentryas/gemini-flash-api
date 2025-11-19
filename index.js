@@ -66,7 +66,7 @@ app.post('/generate-from-document', upload.single('document'), async (req, res) 
         const response = await ai.models.generateContent({
             model: GEMINI_MODEL,
             contents: [
-                { text: prompt, type: 'text' },
+                { text: prompt ?? "Tolong buat ringkasan dari dokumen berikut.", type: 'text' },
                 { 
                     inlineData: { 
                         data: base64Document,
@@ -91,7 +91,7 @@ app.post('/generate-from-audio', upload.single('audio'), async (req, res) => {
         const response = await ai.models.generateContent({
             model: GEMINI_MODEL,
             contents: [
-                { text: prompt, type: 'text' },
+                { text: prompt ?? "Tolong buat transkripsi dari audio berikut.", type: 'text' },
                 { 
                     inlineData: { 
                         data: base64Audio,
