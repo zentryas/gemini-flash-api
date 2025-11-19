@@ -32,3 +32,29 @@ app.post('/generate-text', async (req, res) => {
         res.status(500).json({ error: e.message });
     }
 });
+
+app.post('/generate-from-image', upload.single('image'), async (req, res) => {
+    const { prompt } = req.body;
+    const base64Image = req.file.buffer.toString('base64');
+    console.log(req.file.buffer);
+    try {
+        const response = await ai.models.generateContent({
+            model: GEMINI_MODEL,
+            contents: [
+                { text: prompt, type: 'text' },
+                { 
+                    inlineData: { 
+                        data: base64Image,
+                        mimeType: req.file.mimetype
+                    }
+                }
+            ],
+        });
+        
+        res.status(200).json({ result: response.text });
+    } catch (e) {   
+        console.log(e);
+        res.status(500).json({ error: e.message });
+    }
+});
+
